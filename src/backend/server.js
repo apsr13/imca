@@ -276,16 +276,16 @@ export class Server {
     return wait().then(() => {
       return [
         {
-          title: "New Features Launched",
-          content: "'You ought to be ashamed of yourself for asking such a simple question,' added the Gryphon; and then they both sat silent and looked at poor Alice, who felt ready to sink into the earth. At last the Gryphon said to the Mock Turtle, 'Drive on, old fellow! Don't be all day about it!' and he went on in these words: 'Yes, we went to school in the sea, though you mayn't believe it—' 'I never said I didn't!' interrupted Alice. 'You did,' said the Mock Turtle.",
+          title: "Ticket 001 - Resolved",
+          content: "Lorem ipsum dolor sit amet, vis quot iusto accusata in, tantas sanctus sit an. Ne pro suas alterum, justo alienum usu ex. Vide aeterno ei mei. At nam magna explicari, cu eam error viderer. Te atqui aeque referrentur per, vel simul commodo ei, splendide vulputate in eum.",
           createdAt: new Date(),
-          tags: ["release", "features", "blog"]
+          tags: ["close", "reject", "reopen"]
         },
         {
-          title: "Satisfaction Guaranteed",
-          content: "'I am bound to Tahiti for more men.' 'Very good. Let me board you a moment—I come in peace.' With that he leaped from the canoe, swam to the boat; and climbing the gunwale, stood face to face with the captain. 'Cross your arms, sir; throw back your head. Now, repeat after me. As soon as Steelkilt leaves me, I swear to beach this boat on yonder island, and remain there six days. If I do not, may lightning strike me!'A pretty scholar,' laughed the Lakeman. 'Adios, Senor!' and leaping into the sea, he swam back to his comrades.",
+          title: "Ticket 027 - Resolved",
+          content: "Lorem ipsum dolor sit amet, vis quot iusto accusata in, tantas sanctus sit an. Ne pro suas alterum, justo alienum usu ex. Vide aeterno ei mei. At nam magna explicari, cu eam error viderer. Te atqui aeque referrentur per, vel simul commodo ei, splendide vulputate in eum.",
           createdAt: new Date(),
-          tags: ["release", "launch", "blog"]
+          tags: ["close", "reject", "reopen"]
         }
       ];
     });
