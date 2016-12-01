@@ -430,44 +430,6 @@ define('backend/server',['exports', './lorem'], function (exports, _lorem) {
     return Server;
   }();
 });
-define('home/home',['exports', 'aurelia-framework', 'backend/server'], function (exports, _aureliaFramework, _server) {
-  'use strict';
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  exports.Home = undefined;
-
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  }
-
-  var _dec, _class;
-
-  var Home = exports.Home = (_dec = (0, _aureliaFramework.inject)(_server.Server), _dec(_class = function () {
-    function Home(server) {
-      _classCallCheck(this, Home);
-
-      this.server = server;
-      this.activity = null;
-      this.news = null;
-    }
-
-    Home.prototype.activate = function activate() {
-      var _this = this;
-
-      return Promise.all([this.server.getRecentActivity().then(function (activity) {
-        return _this.activity = activity;
-      }), this.server.getNews().then(function (news) {
-        return _this.news = news;
-      })]);
-    };
-
-    return Home;
-  }()) || _class);
-});
 define('login/login',['exports', 'aurelia-dependency-injection', 'aurelia-framework', 'backend/server'], function (exports, _aureliaDependencyInjection, _aureliaFramework, _server) {
   'use strict';
 
@@ -511,6 +473,44 @@ define('login/login',['exports', 'aurelia-dependency-injection', 'aurelia-framew
     };
 
     return Login;
+  }()) || _class);
+});
+define('home/home',['exports', 'aurelia-framework', 'backend/server'], function (exports, _aureliaFramework, _server) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.Home = undefined;
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  var _dec, _class;
+
+  var Home = exports.Home = (_dec = (0, _aureliaFramework.inject)(_server.Server), _dec(_class = function () {
+    function Home(server) {
+      _classCallCheck(this, Home);
+
+      this.server = server;
+      this.activity = null;
+      this.news = null;
+    }
+
+    Home.prototype.activate = function activate() {
+      var _this = this;
+
+      return Promise.all([this.server.getRecentActivity().then(function (activity) {
+        return _this.activity = activity;
+      }), this.server.getNews().then(function (news) {
+        return _this.news = news;
+      })]);
+    };
+
+    return Home;
   }()) || _class);
 });
 define('resources/index',['exports'], function (exports) {
@@ -1770,15 +1770,15 @@ define('aurelia-dialog/dialog-service',['exports', 'aurelia-metadata', 'aurelia-
     }
   }
 });
+define('text!login/login.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"login\">\n    <div class=\"row\">\n      <div class=\"col-md-4 col-md-offset-4 logo\"></div>\n    </div>\n    <div class=\"row\">\n      <div class=\"col-md-4 col-md-offset-4 well\">\n        <div class=\"alert alert-danger\" show.bind=\"message\">${message}</div> <!--Display the message property here, only if present.-->\n\n        <form role=\"form\" class=\"form-horizontal\" submit.trigger=\"login()\"><!--Invoke login on form submit.-->\n          <div class=\"form-group\">\n            <label class=\"col-sm-2 control-label\">Username</label>\n            <div class=\"col-sm-10\">\n              <input value.bind=\"username\" type=\"text\" class=\"form-control\" placeholder=\"username\"><!--Bind the username.-->\n            </div>\n          </div>\n          <div class=\"form-group\">\n            <label class=\"col-sm-2 control-label\">Password</label>\n            <div class=\"col-sm-10\">\n              <input value.bind=\"password\" type=\"password\" class=\"form-control\" placeholder=\"password\"><!--Bind the password.-->\n            </div>\n          </div>\n          <div class=\"form-group\">\n            <div class=\"col-sm-offset-2 col-sm-10 text-right\">\n              <!--Disable the button if there isn't both a username and password.-->\n              <button disabled.bind=\"!username || !password\" type=\"submit\" class=\"btn btn-success\">Log In</button>\n            </div>\n          </div>\n        </form>\n      </div>\n    </div>\n  </div>\n</template>\n"; });
 define('text!home/activity-list.html', ['module'], function(module) { module.exports = "<template bindable=\"activity\">\n  <ul>\n    <li repeat.for=\"a of activity\" class=\"activity\">\n      <!--Note: The activity type isn't the same as the route. What do we do?-->\n      <a route-href=\"route.bind: a.type | activityTypeToRoute; params.bind: { id: a.associatedId }\">\n        <div class=\"well\">\n          <div class=\"avatar\">\n            <img src=\"${a.createdBy.iconUrl}\">\n          </div>\n          <div class=\"body\">\n            <div class=\"title\" innerhtml.bind=\"a.title\"></div>\n            <div class=\"content\">${a.content}</div>\n            <div class=\"date\">${a.createdAt | date}</div> <!--TODO: Add nicer date format. -->\n          </div>\n        </div>\n      </a>\n    </li>\n  </ul>\n</template>"; });
 define('text!home/home.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./activity-list.html\"></require>\n  <require from=\"./news-list.html\"></require>\n  \n  <div>\n    <div class=\"header\">\n      <div class=\"header-left\">Activity</div>\n      <div class=\"header-right\">Benchmarks &amp; Resolved Tickets</div>\n    </div>\n\n    <div class=\"sidebar\">\n      <activity-list activity.bind=\"activity\"></activity-list>\n    </div>\n\n    <div class=\"detail-container\">\n      <div class=\"row1x2\">\n        <!--TODO: Add Charts Here-->\n      </div>\n      <div class=\"row2x2\">\n        <news-list news.bind=\"news\"></news-list><!--TODO: Add News List Here-->\n      </div>\n    </div>\n  </div>\n</template>"; });
 define('text!home/news-list.html', ['module'], function(module) { module.exports = "<template bindable=\"news\" class=\"news\">\n  \n  <template repeat.for=\"n of news\"><!--One of these for each item in the news array.-->\n    <h1>${n.title}</h1>\n    <p>${n.content}</p>\n    <div>\n      <span class=\"badge badge-success\">${n.createdAt | date}</span>\n      <div class=\"pull-right\">\n        <!--One of these for each tag in the news.tags array.-->\n        <span repeat.for=\"tag of n.tags\" class=\"badge\">${tag}</span>\n      </div>\n    </div>\n    <hr>\n  </template> \n\n</template>\n"; });
-define('text!login/login.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"login\">\n    <div class=\"row\">\n      <div class=\"col-md-4 col-md-offset-4 logo\"></div>\n    </div>\n    <div class=\"row\">\n      <div class=\"col-md-4 col-md-offset-4 well\">\n        <div class=\"alert alert-danger\" show.bind=\"message\">${message}</div> <!--Display the message property here, only if present.-->\n\n        <form role=\"form\" class=\"form-horizontal\" submit.trigger=\"login()\"><!--Invoke login on form submit.-->\n          <div class=\"form-group\">\n            <label class=\"col-sm-2 control-label\">Username</label>\n            <div class=\"col-sm-10\">\n              <input value.bind=\"username\" type=\"text\" class=\"form-control\" placeholder=\"username\"><!--Bind the username.-->\n            </div>\n          </div>\n          <div class=\"form-group\">\n            <label class=\"col-sm-2 control-label\">Password</label>\n            <div class=\"col-sm-10\">\n              <input value.bind=\"password\" type=\"password\" class=\"form-control\" placeholder=\"password\"><!--Bind the password.-->\n            </div>\n          </div>\n          <div class=\"form-group\">\n            <div class=\"col-sm-offset-2 col-sm-10 text-right\">\n              <!--Disable the button if there isn't both a username and password.-->\n              <button disabled.bind=\"!username || !password\" type=\"submit\" class=\"btn btn-success\">Log In</button>\n            </div>\n          </div>\n        </form>\n      </div>\n    </div>\n  </div>\n</template>\n"; });
 define('text!shell/header.html', ['module'], function(module) { module.exports = "<template>\n  <nav class=\"navbar navbar-default navbar-fixed-top\" role=\"navigation\">\n    <ul class=\"nav navbar-nav tabs\">\n      <!--TODO: Add Tabs UI-->\n      <li repeat.for=\"tab of tabs\" class=\"${tab.isActive ? 'active' : ''}\"><!--One li per tab; Apply active class when tab.isActive-->\n        <a route-href=\"route.bind: tab.route; params.bind: tab.params\">${tab.title}</a><!--This link should navigate to the tab using tab.route and tab.params.-->\n        <a href=\"#\" click.trigger=\"closeTab(tab)\"><!--This link should invoke closeTab and pass the tab.-->\n          <i class=\"fa fa-times\"></i>\n        </a>\n      </li>\n\n      <!--END OF TAbUI: Add Tabs UI-->\n      <li class=\"dropdown add\">\n        <a href=\"#\" class=\"dropdown-toggle\" data-toggle=\"dropdown\">\n          <i class=\"fa fa-plus\"></i>add\n        </a>\n        <ul class=\"dropdown-menu\">\n          <li>\n            <a route-href=\"route: thread; params.bind: { id:'new' }\"><i class=\"icon-ticket\"></i> New Ticket</a>\n          </li>\n          <li>\n            <a route-href=\"route: user; params.bind: { id:'new' }\"><i class=\"icon-group\"></i> New User</a>\n          </li>\n        </ul>\n      </li>\n    </ul>\n\n    <ul class=\"nav navbar-nav navbar-right\">\n      <li class=\"dropdown\">\n        <a href=\"#\" class=\"avatar dropdown-toggle\" data-toggle=\"dropdown\">\n          <img src=\"${user.iconUrl}\" title.bind=\"user.username\">\n          <b class=\"caret\"></b>\n        </a>\n        <ul class=\"dropdown-menu\" role=\"menu\">\n          <li role=\"presentation\">\n            <a route-href=\"route: settings\"><i class=\"fa fa-cog\"></i> Settings</a>\n          </li>\n          <li role=\"presentation\">\n            <a route-href=\"route: help\"><i class=\"fa fa-envelope\"></i> Help</a>\n          </li>\n          <li role=\"presentation\" class=\"divider\"></li>\n          <li role=\"presentation\">\n            <a href=\"#\" click.trigger=\"logout()\"><i class=\"fa fa-power-off\"></i> Logout</a>\n          </li>\n        </ul>\n      </li>\n    </ul>\n  </nav>\n</template>"; });
 define('text!shell/shell.html', ['module'], function(module) { module.exports = "<template>\n  <compose view=\"./sidebar.html\"></compose>\n  <compose view=\"./header.html\"></compose>\n\n  <div class=\"page-host\">\n    <router-view></router-view>\n  </div>\n</template>\n"; });
 define('text!shell/sidebar.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"main-nav\">\n    <ul class=\"nav nav-list\">\n      <li repeat.for=\"nav of router.navigation\" class=\"${nav.isActive ? 'active' : ''}\"> <!--One li per item in router.navigation; apply the active class if items.isActive-->\n        <a href.bind=\"nav.href\"> <!--Bind the href to item.href-->\n          <i class=\"fa ${nav.settings.iconClass}\"></i> <!--Add the icon class based on settings.-->\n        </a>\n      </li>\n    </ul>\n  </div>\n</template>\n"; });
 define('text!shell/thread.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"ticket\">\n    <div class=\"header\">\n      <div class=\"btn-group\">\n        <a class=\"btn btn-default creator\" route-href=\"route: user; params.bind: { id:ticket.participants[0].id}\" class=\"btn\">\n          <span>${ticket.participants[0].username}</span>\n        </a>\n        <button class=\"btn status active\">\n          <span class=\"badge ${ticket.status}\">${ticket.status}</span>\n        </button>\n      </div>\n    </div>\n\n    <div class=\"sidebar\">\n      <div class=\"well\">\n        <form>\n          <div class=\"form-group\">\n            <label class=\"control-label\">Type</label>\n            <select class=\"form-control\">\n              <option>Question</option>\n              <option>Incident</option>\n              <option>Problem</option>\n              <option>Task</option>\n            </select>\n          </div>\n          <div class=\"form-group\">\n            <label class=\"control-label\">Priority</label>\n            <select class=\"form-control\">\n              <option>Low</option>\n              <option>Normal</option>\n              <option>High</option>\n              <option>Urgent</option>\n            </select>\n          </div>\n          <div class=\"form-group\">\n            <label class=\"control-label\">Tags</label>\n            <input class=\"form-control\" type=\"text\" placeholder=\"tags\" />\n          </div>\n        </form>\n      </div>\n      <div class=\"well\">\n        <form>\n          <div class=\"form-group\">\n            <label class=\"control-label\">Internal Notes</label>\n            <textarea class=\"form-control\"></textarea>\n          </div>\n        </form>\n      </div>\n    </div>\n\n    <div class=\"detail-container\">\n      <div class=\"header\">\n        <i class=\"fa fa-comments\"></i>\n        <div class=\"content\">\n          <div class=\"title\">${ticket.title}</div>\n          <div class=\"description\">\n            <span>${ticket.createdAt | date}</span>\n            <i class=\"fa fa-circle separator\"></i>\n            <span>${from.firstName} ${from.lastName}</span> &lt;\n            <span>${from.email}</span>&gt;\n          </div>\n        </div>\n      </div>\n\n      <div class=\"thread\">\n        <form class=\"message\">\n          <!--TODO: Add a rich text editor and bind its value to message.-->\n        </form>\n\n        <div class=\"btn-group dropup pull-right\">\n          <button click.trigger=\"submit('Solved')\" class=\"btn btn-success\">Submit as Solved</button>\n          <button class=\"btn btn-default dropdown-toggle\" data-toggle=\"dropdown\">\n            <span class=\"caret\"></span>\n          </button>\n          <ul class=\"dropdown-menu\">\n            <li>\n              <a href=\"#\" click.trigger=\"submit('Open')\">Submit as Open</a>\n              <a href=\"#\" click.trigger=\"submit('Pending')\">Submit as Pending</a>\n              <a href=\"#\" click.trigger=\"submit('Solved')\">Submit as Solved</a>\n            </li>\n          </ul>\n        </div>\n\n        <div class=\"post-list\">\n          <div repeat.for=\"post of ticket.posts\" class=\"post\">\n            <input type=\"hidden\" model.one-time=\"getParticipant(post.fromId)\" ref=\"participant\">\n            <div class=\"avatar\">\n              <img src=\"${participant.model.avatarUrl}\">\n            </div>\n            <div class=\"body\">\n              <div>\n                <strong>${participant.model.firstName}</strong>\n                <strong>${participant.model.lastName}</strong>\n                <span class=\"createdAt\">${post.createdAt | date}</span>\n              </div>\n              <div>\n                <div>\n                  <p innerhtml.bind=\"post.content\"></p>\n                </div>\n              </div>\n            </div>\n          </div>\n        </div>\n      </div>\n    </div>\n  </div>\n</template>\n"; });
-define('text!tickets/thread.html', ['module'], function(module) { module.exports = "<template>\n  This is a ticket ${ticket.id}.\n</template>\n"; });
+define('text!tickets/thread.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"ticket\">\n    <div class=\"header\">\n      <div class=\"btn-group\">\n        <a class=\"btn btn-default creator\" route-href=\"route: user; params.bind: { id:ticket.participants[0].id}\" class=\"btn\">\n          <span>${ticket.participants[0].username}</span>\n        </a>\n        <button class=\"btn status active\">\n          <span class=\"badge ${ticket.status}\">${ticket.status}</span>\n        </button>\n      </div>\n    </div>\n\n    <div class=\"sidebar\">\n      <div class=\"well\">\n        <form>\n          <div class=\"form-group\">\n            <label class=\"control-label\">Type</label>\n            <select class=\"form-control\">\n              <option>Question</option>\n              <option>Incident</option>\n              <option>Problem</option>\n              <option>Task</option>\n            </select>\n          </div>\n          <div class=\"form-group\">\n            <label class=\"control-label\">Priority</label>\n            <select class=\"form-control\">\n              <option>Low</option>\n              <option>Normal</option>\n              <option>High</option>\n              <option>Urgent</option>\n            </select>\n          </div>\n          <div class=\"form-group\">\n            <label class=\"control-label\">Tags</label>\n            <input class=\"form-control\" type=\"text\" placeholder=\"tags\" />\n          </div>\n        </form>\n      </div>\n      <div class=\"well\">\n        <form>\n          <div class=\"form-group\">\n            <label class=\"control-label\">Internal Notes</label>\n            <textarea class=\"form-control\"></textarea>\n          </div>\n        </form>\n      </div>\n    </div>\n\n    <div class=\"detail-container\">\n      <div class=\"header\">\n        <i class=\"fa fa-comments\"></i>\n        <div class=\"content\">\n          <div class=\"title\">${ticket.title}</div>\n          <div class=\"description\">\n            <span>${ticket.createdAt | date}</span>\n            <i class=\"fa fa-circle separator\"></i>\n            <span>${from.firstName} ${from.lastName}</span> &lt;\n            <span>${from.email}</span>&gt;\n          </div>\n        </div>\n      </div>\n\n      <div class=\"thread\">\n        <form class=\"message\">\n          <!--TODO: Add a rich text editor and bind its value to message.-->\n        </form>\n\n        <div class=\"btn-group dropup pull-right\">\n          <button click.trigger=\"submit('Solved')\" class=\"btn btn-success\">Submit as Solved</button>\n          <button class=\"btn btn-default dropdown-toggle\" data-toggle=\"dropdown\">\n            <span class=\"caret\"></span>\n          </button>\n          <ul class=\"dropdown-menu\">\n            <li>\n              <a href=\"#\" click.trigger=\"submit('Open')\">Submit as Open</a>\n              <a href=\"#\" click.trigger=\"submit('Pending')\">Submit as Pending</a>\n              <a href=\"#\" click.trigger=\"submit('Solved')\">Submit as Solved</a>\n            </li>\n          </ul>\n        </div>\n\n        <div class=\"post-list\">\n          <div repeat.for=\"post of ticket.posts\" class=\"post\">\n            <input type=\"hidden\" model.one-time=\"getParticipant(post.fromId)\" ref=\"participant\">\n            <div class=\"avatar\">\n              <img src=\"${participant.model.avatarUrl}\">\n            </div>\n            <div class=\"body\">\n              <div>\n                <strong>${participant.model.firstName}</strong>\n                <strong>${participant.model.lastName}</strong>\n                <span class=\"createdAt\">${post.createdAt | date}</span>\n              </div>\n              <div>\n                <div>\n                  <p innerhtml.bind=\"post.content\"></p>\n                </div>\n              </div>\n            </div>\n          </div>\n        </div>\n      </div>\n    </div>\n  </div>\n</template>\n"; });
 define('text!resources/dialogs/message-box.html', ['module'], function(module) { module.exports = "<template>\n  <ai-dialog style=\"max-width: 350px\">\n    <ai-dialog-header>${model.title}</ai-dialog-header>\n\n    <ai-dialog-body>\n      ${model.message}\n    </ai-dialog-body>\n\n    <ai-dialog-footer>\n      <button repeat.for=\"option of model.options\" click.trigger=\"selectOption(option)\">${option}</button>\n    </ai-dialog-footer>\n  </ai-dialog>\n</template>"; });
 define('text!resources/dialogs/prompt.html', ['module'], function(module) { module.exports = "<template>\n  <ai-dialog>\n    <ai-dialog-header>${model.title}</ai-dialog-header>\n\n    <ai-dialog-body>\n      <p>${model.message}</p>\n      <form submit.trigger=\"ok()\"> <!--On submit, ok the dialog w/ the answer response.-->\n        <input type=\"text\" class=\"form-control\" value.bind=\"answer\" attach-focus=\"true\"> <!--Bind the answer.-->\n      </form>\n    </ai-dialog-body>\n\n    <ai-dialog-footer>\n      <button click.trigger=\"cancel()\">Cancel</button><!--Cancel the dialog.-->\n      <button click.trigger=\"ok()\" disabled.bind=\"!answer\">Ok</button><!--Ok the dialog w/ answer response; Disable the button if there's no answer.-->\n    </ai-dialog-footer>\n  </ai-dialog>\n</template>"; });
 //# sourceMappingURL=app-bundle.js.map
