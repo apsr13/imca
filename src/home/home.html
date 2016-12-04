@@ -14,7 +14,19 @@
 
     <div class="detail-container">
       <div class="row1x2">
-        <!--TODO: Add Charts Here-->
+      <!--TODO: Add Charts Here-->
+      <line-chart class="column1x2"
+        labels.bind="['August', 'September', 'August', 'September', 'October', 'November', 'December']">
+        <chart-data data.bind="[65, 59, 80, 81, 56, 55, 40]"></chart-data>
+        <chart-data data.bind="[28, 48, 40, 19, 86, 27, 90]"
+                    fill-color="rgba(230,38,135,0.2)"
+                    stroke-color="rgba(230,38,135,0.5)"
+                    point-color="rgba(230,38,135,1)",
+                    point-stroke-color="#fff",
+                    point-highlight-fill="#fff",
+                    point-highlight-stroke="rgba(230,38,135,1)"></chart-data>  
+      </line-chart>
+      <!--End of Charts-->
       </div>
       <div class="row2x2">
         <news-list news.bind="news"></news-list><!--TODO: Add News List Here-->

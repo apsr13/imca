@@ -133,6 +133,16 @@
             "main": "aurelia-dialog"
           },
           {
+            "name": "chartjs",
+            "path": "../node_modules/chart.js/Chart.min",
+            "exports": "Chart"
+          },
+          {
+            "name": "aurelia-validation",
+            "path": "../node_modules/aurelia-validation/dist/amd",
+            "main": "aurelia-validation"
+          },
+          {
             "name": "aurelia-testing",
             "path": "../node_modules/aurelia-testing/dist/amd",
             "main": "aurelia-testing",
