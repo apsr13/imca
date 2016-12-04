@@ -189,6 +189,9 @@ export class Server {
       if (username === 'admin' && password === 'password123') {
         return userData[0].clone();
       }
+      else if (username === 'associate' && password === 'password456') {
+        return userData[0].clone();
+      }
     });
   }
 
