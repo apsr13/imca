@@ -48,6 +48,158 @@ define('main',['exports', './environment'], function (exports, _environment) {
     });
   }
 });
+define('ashell/ashell',['exports', 'aurelia-framework', 'backend/server', 'resources/messages/tab-opened', './routes', 'resources/dialogs/common-dialogs'], function (exports, _aureliaFramework, _server, _tabOpened, _routes, _commonDialogs) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.Ashell = undefined;
+
+  var _routes2 = _interopRequireDefault(_routes);
+
+  function _interopRequireDefault(obj) {
+    return obj && obj.__esModule ? obj : {
+      default: obj
+    };
+  }
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  var _dec, _class;
+
+  var Ashell = exports.Ashell = (_dec = (0, _aureliaFramework.inject)(_aureliaFramework.Aurelia, _server.User, _commonDialogs.CommonDialogs), _dec(_class = function () {
+    function Ashell(aurelia, user, commonDialogs) {
+      _classCallCheck(this, Ashell);
+
+      this.aurelia = aurelia;
+      this.user = user;
+      this.tabs = [];
+      this.commonDialogs = commonDialogs;
+    }
+
+    Ashell.prototype.configureRouter = function configureRouter(config, router) {
+      this.router = router;
+      config.map(_routes2.default);
+    };
+
+    Ashell.prototype.bind = function bind() {
+      var _this = this;
+
+      this.navigationCompleteSub = this.aurelia.subscribe('router:navigation:complete', function (msg) {
+        return _this.onNavigationComplete(msg);
+      });
+      this.tabOpenedSub = this.aurelia.subscribe(_tabOpened.TabOpened, function (msg) {
+        return _this.onTabOpened(msg);
+      });
+    };
+
+    Ashell.prototype.unbind = function unbind() {
+      this.navigationCompleteSub.dispose();
+      this.tabOpenedSub.dispose();
+    };
+
+    Ashell.prototype.closeTab = function closeTab(tab) {
+      var index = this.tabs.indexOf(tab);
+
+      if (index === -1) {
+        return;
+      }
+
+      this.tabs.splice(index, 1);
+
+      if (!tab.isActive) {
+        return;
+      }
+
+      var next = this.tabs[0];
+
+      if (next) {
+        this.router.navigateToRoute(next.route, next.params, true);
+      } else {
+        this.router.navigateToRoute('home', true);
+      }
+    };
+
+    Ashell.prototype.logout = function logout() {
+      var _this2 = this;
+
+      if (this.tabs.length > 0) {
+        var message = 'You have ' + this.tabs.length + ' open tab(s). Are you sure you want to logout?';
+
+        this.commonDialogs.showMessage(message, 'Logout', ['Yes', 'No']).then(function (response) {
+          if (!response.wasCancelled) {
+            _this2._doLogout();
+          }
+        });
+      } else {
+        this._doLogout();
+      }
+    };
+
+    Ashell.prototype._doLogout = function _doLogout() {
+      this.aurelia.setRoot('login/login');
+      this.aurelia.container.unregister(_server.User);
+      this.router.reset();
+      this.router.deactivate();
+      this.tabs = [];
+    };
+
+    Ashell.prototype.onTabOpened = function onTabOpened(tab) {
+      var existing = this.tabs.find(function (x) {
+        return x.matches(tab);
+      });
+
+      if (!existing) {
+        this.tabs.push(tab);
+      }
+    };
+
+    Ashell.prototype.onNavigationComplete = function onNavigationComplete(msg) {
+      if (!msg.result.completed) {
+        return;
+      }
+
+      this.tabs.forEach(function (x) {
+        return x.updateActivation(msg.instruction);
+      });
+    };
+
+    return Ashell;
+  }()) || _class);
+});
+define('ashell/routes',['exports'], function (exports) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.default = [{
+    name: 'home',
+    route: ['', 'home'],
+    moduleId: 'home/home',
+    nav: true,
+    title: 'Home',
+    settings: { iconClass: 'fa-home' }
+  }, {
+    route: 'tickets',
+    moduleId: 'tickets/tickets',
+    nav: true,
+    settings: { iconClass: 'fa-ticket' }
+  }, {
+    name: 'thread',
+    route: 'tickets/:id',
+    moduleId: 'tickets/thread'
+  }, {
+    name: 'help',
+    route: 'help',
+    moduleId: 'help/help'
+  }];
+});
 define('backend/lorem',['exports'], function (exports) {
   'use strict';
 
@@ -430,158 +582,6 @@ define('backend/server',['exports', './lorem'], function (exports, _lorem) {
     return Server;
   }();
 });
-define('ashell/ashell',['exports', 'aurelia-framework', 'backend/server', 'resources/messages/tab-opened', './routes', 'resources/dialogs/common-dialogs'], function (exports, _aureliaFramework, _server, _tabOpened, _routes, _commonDialogs) {
-  'use strict';
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  exports.Ashell = undefined;
-
-  var _routes2 = _interopRequireDefault(_routes);
-
-  function _interopRequireDefault(obj) {
-    return obj && obj.__esModule ? obj : {
-      default: obj
-    };
-  }
-
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  }
-
-  var _dec, _class;
-
-  var Ashell = exports.Ashell = (_dec = (0, _aureliaFramework.inject)(_aureliaFramework.Aurelia, _server.User, _commonDialogs.CommonDialogs), _dec(_class = function () {
-    function Ashell(aurelia, user, commonDialogs) {
-      _classCallCheck(this, Ashell);
-
-      this.aurelia = aurelia;
-      this.user = user;
-      this.tabs = [];
-      this.commonDialogs = commonDialogs;
-    }
-
-    Ashell.prototype.configureRouter = function configureRouter(config, router) {
-      this.router = router;
-      config.map(_routes2.default);
-    };
-
-    Ashell.prototype.bind = function bind() {
-      var _this = this;
-
-      this.navigationCompleteSub = this.aurelia.subscribe('router:navigation:complete', function (msg) {
-        return _this.onNavigationComplete(msg);
-      });
-      this.tabOpenedSub = this.aurelia.subscribe(_tabOpened.TabOpened, function (msg) {
-        return _this.onTabOpened(msg);
-      });
-    };
-
-    Ashell.prototype.unbind = function unbind() {
-      this.navigationCompleteSub.dispose();
-      this.tabOpenedSub.dispose();
-    };
-
-    Ashell.prototype.closeTab = function closeTab(tab) {
-      var index = this.tabs.indexOf(tab);
-
-      if (index === -1) {
-        return;
-      }
-
-      this.tabs.splice(index, 1);
-
-      if (!tab.isActive) {
-        return;
-      }
-
-      var next = this.tabs[0];
-
-      if (next) {
-        this.router.navigateToRoute(next.route, next.params, true);
-      } else {
-        this.router.navigateToRoute('home', true);
-      }
-    };
-
-    Ashell.prototype.logout = function logout() {
-      var _this2 = this;
-
-      if (this.tabs.length > 0) {
-        var message = 'You have ' + this.tabs.length + ' open tab(s). Are you sure you want to logout?';
-
-        this.commonDialogs.showMessage(message, 'Logout', ['Yes', 'No']).then(function (response) {
-          if (!response.wasCancelled) {
-            _this2._doLogout();
-          }
-        });
-      } else {
-        this._doLogout();
-      }
-    };
-
-    Ashell.prototype._doLogout = function _doLogout() {
-      this.aurelia.setRoot('login/login');
-      this.aurelia.container.unregister(_server.User);
-      this.router.reset();
-      this.router.deactivate();
-      this.tabs = [];
-    };
-
-    Ashell.prototype.onTabOpened = function onTabOpened(tab) {
-      var existing = this.tabs.find(function (x) {
-        return x.matches(tab);
-      });
-
-      if (!existing) {
-        this.tabs.push(tab);
-      }
-    };
-
-    Ashell.prototype.onNavigationComplete = function onNavigationComplete(msg) {
-      if (!msg.result.completed) {
-        return;
-      }
-
-      this.tabs.forEach(function (x) {
-        return x.updateActivation(msg.instruction);
-      });
-    };
-
-    return Ashell;
-  }()) || _class);
-});
-define('ashell/routes',['exports'], function (exports) {
-  'use strict';
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  exports.default = [{
-    name: 'home',
-    route: ['', 'home'],
-    moduleId: 'home/home',
-    nav: true,
-    title: 'Home',
-    settings: { iconClass: 'fa-home' }
-  }, {
-    route: 'tickets',
-    moduleId: 'tickets/tickets',
-    nav: true,
-    settings: { iconClass: 'fa-ticket' }
-  }, {
-    name: 'thread',
-    route: 'tickets/:id',
-    moduleId: 'tickets/thread'
-  }, {
-    name: 'help',
-    route: 'help',
-    moduleId: 'help/help'
-  }];
-});
 define('home/home',['exports', 'aurelia-framework', 'backend/server'], function (exports, _aureliaFramework, _server) {
   'use strict';
 
@@ -669,101 +669,6 @@ define('login/login',['exports', 'aurelia-dependency-injection', 'aurelia-framew
 
     return Login;
   }()) || _class);
-});
-define('settings/index',['exports', './routes'], function (exports, _routes2) {
-  'use strict';
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  exports.CategoriesValueConverter = exports.SettingsIndex = undefined;
-
-  var _routes3 = _interopRequireDefault(_routes2);
-
-  function _interopRequireDefault(obj) {
-    return obj && obj.__esModule ? obj : {
-      default: obj
-    };
-  }
-
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  }
-
-  var SettingsIndex = exports.SettingsIndex = function () {
-    function SettingsIndex() {
-      _classCallCheck(this, SettingsIndex);
-    }
-
-    SettingsIndex.prototype.configureRouter = function configureRouter(config, router) {
-      this.router = router;
-      config.map(_routes3.default);
-    };
-
-    return SettingsIndex;
-  }();
-
-  var CategoriesValueConverter = exports.CategoriesValueConverter = function () {
-    function CategoriesValueConverter() {
-      _classCallCheck(this, CategoriesValueConverter);
-    }
-
-    CategoriesValueConverter.prototype.toView = function toView(navModels) {
-      var categories = new Map();
-
-      for (var _iterator = navModels, _isArray = Array.isArray(_iterator), _i = 0, _iterator = _isArray ? _iterator : _iterator[Symbol.iterator]();;) {
-        var _ref;
-
-        if (_isArray) {
-          if (_i >= _iterator.length) break;
-          _ref = _iterator[_i++];
-        } else {
-          _i = _iterator.next();
-          if (_i.done) break;
-          _ref = _i.value;
-        }
-
-        var model = _ref;
-
-        var _routes = categories.get(model.settings.category);
-
-        if (!_routes) {
-          categories.set(model.settings.category, _routes = []);
-        }
-
-        _routes.push(model);
-      }
-
-      return categories;
-    };
-
-    return CategoriesValueConverter;
-  }();
-});
-define('settings/routes',['exports'], function (exports) {
-  'use strict';
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  var adminHome = {
-    title: 'Admin Portal',
-    iconClass: 'fa-home'
-  };
-
-  var channels = {
-    title: 'Channels',
-    iconClass: 'fa-external-link'
-  };
-
-  var settings = {
-    title: 'Settings',
-    iconClass: 'fa-cog'
-  };
-
-  exports.default = [{ route: '', moduleId: './overview/index', title: 'Overview', nav: true, settings: { category: adminHome } }, { route: 'web-portal', moduleId: './webportal/index', title: 'Web Portal', nav: true, settings: { category: channels } }, { route: 'feedback-tab', moduleId: './feedbacktab/index', title: 'Feedback Tab', nav: true, settings: { category: channels } }, { route: 'account', moduleId: './account/index', title: 'Account', nav: true, settings: { category: settings } }, { route: 'security', moduleId: './security/index', title: 'Security', nav: true, settings: { category: settings } }];
 });
 define('resources/bootstrap-form-renderer',['exports', 'aurelia-validation'], function (exports, _aureliaValidation) {
   'use strict';
@@ -909,6 +814,101 @@ define('resources/index',['exports', 'chartjs'], function (exports, _chartjs) {
   function configure(config) {
     config.globalResources(['./value-converters/activity-type-to-route', './value-converters/date', './elements/rich-text-editor', './elements/data-grid', './elements/chart-data', './elements/line-chart']);
   }
+});
+define('settings/index',['exports', './routes'], function (exports, _routes2) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.CategoriesValueConverter = exports.SettingsIndex = undefined;
+
+  var _routes3 = _interopRequireDefault(_routes2);
+
+  function _interopRequireDefault(obj) {
+    return obj && obj.__esModule ? obj : {
+      default: obj
+    };
+  }
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  var SettingsIndex = exports.SettingsIndex = function () {
+    function SettingsIndex() {
+      _classCallCheck(this, SettingsIndex);
+    }
+
+    SettingsIndex.prototype.configureRouter = function configureRouter(config, router) {
+      this.router = router;
+      config.map(_routes3.default);
+    };
+
+    return SettingsIndex;
+  }();
+
+  var CategoriesValueConverter = exports.CategoriesValueConverter = function () {
+    function CategoriesValueConverter() {
+      _classCallCheck(this, CategoriesValueConverter);
+    }
+
+    CategoriesValueConverter.prototype.toView = function toView(navModels) {
+      var categories = new Map();
+
+      for (var _iterator = navModels, _isArray = Array.isArray(_iterator), _i = 0, _iterator = _isArray ? _iterator : _iterator[Symbol.iterator]();;) {
+        var _ref;
+
+        if (_isArray) {
+          if (_i >= _iterator.length) break;
+          _ref = _iterator[_i++];
+        } else {
+          _i = _iterator.next();
+          if (_i.done) break;
+          _ref = _i.value;
+        }
+
+        var model = _ref;
+
+        var _routes = categories.get(model.settings.category);
+
+        if (!_routes) {
+          categories.set(model.settings.category, _routes = []);
+        }
+
+        _routes.push(model);
+      }
+
+      return categories;
+    };
+
+    return CategoriesValueConverter;
+  }();
+});
+define('settings/routes',['exports'], function (exports) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  var adminHome = {
+    title: 'Admin Portal',
+    iconClass: 'fa-home'
+  };
+
+  var channels = {
+    title: 'Channels',
+    iconClass: 'fa-external-link'
+  };
+
+  var settings = {
+    title: 'Settings',
+    iconClass: 'fa-cog'
+  };
+
+  exports.default = [{ route: '', moduleId: './overview/index', title: 'Overview', nav: true, settings: { category: adminHome } }, { route: 'web-portal', moduleId: './webportal/index', title: 'Web Portal', nav: true, settings: { category: channels } }, { route: 'feedback-tab', moduleId: './feedbacktab/index', title: 'Feedback Tab', nav: true, settings: { category: channels } }, { route: 'account', moduleId: './account/index', title: 'Account', nav: true, settings: { category: settings } }, { route: 'security', moduleId: './security/index', title: 'Security', nav: true, settings: { category: settings } }];
 });
 define('shell/routes',['exports'], function (exports) {
   'use strict';
@@ -1476,101 +1476,6 @@ define('users/users',['exports', 'aurelia-framework', 'aurelia-router', 'backend
 
     return Users;
   }()) || _class) || _class);
-});
-define('settings/account/index',['exports'], function (exports) {
-  'use strict';
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  }
-
-  var Index = exports.Index = function Index() {
-    _classCallCheck(this, Index);
-
-    this.heading = 'Account';
-  };
-});
-define('settings/feedbacktab/index',['exports'], function (exports) {
-  'use strict';
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  }
-
-  var Index = exports.Index = function Index() {
-    _classCallCheck(this, Index);
-
-    this.heading = 'Feedback Tab';
-  };
-});
-define('settings/overview/index',['exports'], function (exports) {
-  'use strict';
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  }
-
-  var Index = exports.Index = function Index() {
-    _classCallCheck(this, Index);
-
-    this.heading = 'Overview';
-  };
-});
-define('settings/security/index',['exports'], function (exports) {
-  'use strict';
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  }
-
-  var Index = exports.Index = function Index() {
-    _classCallCheck(this, Index);
-
-    this.heading = 'Security';
-  };
-});
-define('settings/webportal/index',['exports'], function (exports) {
-  'use strict';
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  }
-
-  var Index = exports.Index = function Index() {
-    _classCallCheck(this, Index);
-
-    this.heading = 'Web Portal';
-  };
 });
 define('resources/data/countries',["exports", "aurelia-templating"], function (exports, _aureliaTemplating) {
   "use strict";
@@ -2315,6 +2220,101 @@ define('resources/value-converters/date',['exports', 'moment'], function (export
 
     return DateValueConverter;
   }();
+});
+define('settings/account/index',['exports'], function (exports) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  var Index = exports.Index = function Index() {
+    _classCallCheck(this, Index);
+
+    this.heading = 'Account';
+  };
+});
+define('settings/feedbacktab/index',['exports'], function (exports) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  var Index = exports.Index = function Index() {
+    _classCallCheck(this, Index);
+
+    this.heading = 'Feedback Tab';
+  };
+});
+define('settings/overview/index',['exports'], function (exports) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  var Index = exports.Index = function Index() {
+    _classCallCheck(this, Index);
+
+    this.heading = 'Overview';
+  };
+});
+define('settings/webportal/index',['exports'], function (exports) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  var Index = exports.Index = function Index() {
+    _classCallCheck(this, Index);
+
+    this.heading = 'Web Portal';
+  };
+});
+define('settings/security/index',['exports'], function (exports) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  var Index = exports.Index = function Index() {
+    _classCallCheck(this, Index);
+
+    this.heading = 'Security';
+  };
 });
 define('aurelia-dialog/ai-dialog',['exports', 'aurelia-templating'], function (exports, _aureliaTemplating) {
   'use strict';
@@ -4546,7 +4546,7 @@ define('text!resources/elements/data-grid.html', ['module'], function(module) { 
 define('text!resources/elements/line-chart.html', ['module'], function(module) { module.exports = "<template>\n  <canvas ref=\"canvas\"></canvas>\n  <slot></slot>\n</template>\n"; });
 define('text!settings/account/index.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"header\">\n    <div class=\"content\">\n      <div class=\"title\">${heading}</div>\n    </div>\n  </div>\n  <div class=\"grid-container container-fluid\">\n    <div class=\"row-fluid\">\n      <div class=\"alert alert-danger text-center\">\n        <span>${heading} Settings Not Implemented</span>\n      </div>\n    </div>\n  </div>\n</template>"; });
 define('text!settings/feedbacktab/index.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"header\">\n    <div class=\"content\">\n      <div class=\"title\">${heading}</div>\n    </div>\n  </div>\n  <div class=\"grid-container container-fluid\">\n    <div class=\"row-fluid\">\n      <div class=\"alert alert-danger text-center\">\n        <span>${heading} Settings Not Implemented</span>\n      </div>\n    </div>\n  </div>\n</template>"; });
-define('text!settings/overview/index.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"header\">\n    <div class=\"content\">\n      <div class=\"title\">${heading}</div>\n    </div>\n  </div>\n  <div class=\"grid-container container-fluid\">\n    <div class=\"row-fluid\">\n      <div class=\"alert alert-danger text-center\">\n        <span>${heading} Settings Not Implemented</span>\n      </div>\n    </div>\n  </div>\n</template>"; });
 define('text!settings/security/index.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"header\">\n    <div class=\"content\">\n      <div class=\"title\">${heading}</div>\n    </div>\n  </div>\n  <div class=\"grid-container container-fluid\">\n    <div class=\"row-fluid\">\n      <div class=\"alert alert-danger text-center\">\n        <span>${heading} Settings Not Implemented</span>\n      </div>\n    </div>\n  </div>\n</template>"; });
+define('text!settings/overview/index.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"header\">\n    <div class=\"content\">\n      <div class=\"title\">${heading}</div>\n    </div>\n  </div>\n  <div class=\"grid-container container-fluid\">\n    <div class=\"row-fluid\">\n      <div class=\"alert alert-danger text-center\">\n        <span>${heading} Settings Not Implemented</span>\n      </div>\n    </div>\n  </div>\n</template>"; });
 define('text!settings/webportal/index.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"header\">\n    <div class=\"content\">\n      <div class=\"title\">${heading}</div>\n    </div>\n  </div>\n  <div class=\"grid-container container-fluid\">\n    <div class=\"row-fluid\">\n      <div class=\"alert alert-danger text-center\">\n        <span>${heading} Settings Not Implemented</span>\n      </div>\n    </div>\n  </div>\n</template>"; });
 //# sourceMappingURL=app-bundle.js.map
