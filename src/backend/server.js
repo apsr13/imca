@@ -281,14 +281,12 @@ export class Server {
         {
           title: "Ticket 001 - Resolved",
           content: "Lorem ipsum dolor sit amet, vis quot iusto accusata in, tantas sanctus sit an. Ne pro suas alterum, justo alienum usu ex. Vide aeterno ei mei. At nam magna explicari, cu eam error viderer. Te atqui aeque referrentur per, vel simul commodo ei, splendide vulputate in eum.",
-          createdAt: new Date(),
-          tags: ["close", "reject", "reopen"]
+          createdAt: new Date()
         },
         {
           title: "Ticket 027 - Resolved",
           content: "Lorem ipsum dolor sit amet, vis quot iusto accusata in, tantas sanctus sit an. Ne pro suas alterum, justo alienum usu ex. Vide aeterno ei mei. At nam magna explicari, cu eam error viderer. Te atqui aeque referrentur per, vel simul commodo ei, splendide vulputate in eum.",
-          createdAt: new Date(),
-          tags: ["close", "reject", "reopen"]
+          createdAt: new Date()
         }
       ];
     });
